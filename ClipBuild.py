@@ -98,9 +98,8 @@ def add_subtitles_to_video(video_path, subtitles_path, output_path):
         txt_clip = TextClip(sub.text,
                             fontsize=24,
                             color='white',
-                            bg_color='black',
-                            transparent_bg=True,
-                            size=video.size,
+                            bg_color='transparent',
+                            size=video.size, align='South',
                             print_cmd=True).set_position(('center', 'bottom')).set_duration(duration).set_start(start_time)
 
         subtitle_clips.append(txt_clip)
