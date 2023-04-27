@@ -3,10 +3,6 @@
 This file is used to build the final clip with the subtitles overlayed on top of the video clip.
 '''
 
-# clip_path = "/Users/lavan/Desktop/Python Things hissssss/Video-Creation-Tool/Video-Creation-Tool/ValorantClip.mp4"
-
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/lavan/Downloads/Dont Delete/APIKeys/GCPSpeechToText/video-creation-tool-de8442b66120.json"
-
 import os
 import subprocess
 import io
@@ -19,12 +15,20 @@ from google.cloud import speech_v1p1beta1 as speech
 from google.cloud.speech_v1p1beta1 import SpeechClient, RecognitionConfig, RecognitionAudio
 from google.api_core.exceptions import InvalidArgument
 
+#Video file path for which subtitles are to be generated
+video_file = 'ValorantClip.mp4'
+
+# Function to authenticate the Google Cloud API 
+# Note: file should be service key json generated for Speech to Text API
 def authenticate_google_cloud():
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/Users/lavan/Downloads/Dont Delete/APIKeys/GCPSpeechToText/video-creation-tool-de8442b66120.json'
 
+# Function to extract audio from the video file in desired format
 def extract_audio(video_file, audio_file):
     subprocess.run(['ffmpeg', '-i', video_file, '-vn', '-acodec', 'pcm_s16le', '-ar', '16000', '-ac', '1', audio_file])
 
+# Function to transcribe the audio file to subtitles from Google Cloud Speech to Text API
+# -> Returns a list of tuples of the form (word, start_time, end_time)
 def transcribe_audio_to_subtitles(video_file):
     authenticate_google_cloud()
     audio_file = 'extracted_audio.wav'
@@ -60,6 +64,7 @@ def transcribe_audio_to_subtitles(video_file):
 
     return subtitles
 
+#Creates SRT file with subtitles overlayed on top of the video clip
 def write_subtitles_to_srt(subtitles: List[Tuple[str, float, float]], output_file: str):
     with open(output_file, 'w', encoding='utf-8') as srt_file:
         index = 1
@@ -81,6 +86,7 @@ def format_timestamp(timestamp: float) -> str:
 def srt_time_to_seconds(srt_time):
     return srt_time.hours * 3600 + srt_time.minutes * 60 + srt_time.seconds + srt_time.milliseconds / 1000.0
 
+# Reads SRT file to perform subtitles overlaying on top of the video clip
 def add_subtitles_to_video(video_path, subtitles_path, output_path):
     # Load subtitles
     subs = pysrt.open(subtitles_path)
@@ -110,16 +116,13 @@ def add_subtitles_to_video(video_path, subtitles_path, output_path):
     # Write the output video file
     final_clip.write_videofile(output_path, codec='libx264', audio_codec='aac')
 
-video_file = 'ValorantClip.mp4'
 subtitles = transcribe_audio_to_subtitles(video_file)
 
 print(subtitles)
 
 output_srt_file = 'subtitles.srt'
+
 write_subtitles_to_srt(subtitles, output_srt_file)
 
 add_subtitles_to_video(video_file, output_srt_file, 'output_path.mp4')
-
-
-
 
