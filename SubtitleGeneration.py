@@ -45,13 +45,11 @@ with BatchClient(settings) as client:
         )
         print(f'job {job_id} submitted successfully, waiting for transcript')
 
-        # Note that in production, you should set up notifications instead of polling.
-        # Notifications are described here: https://docs.speechmatics.com/features-other/notifications
+        #Get Transcript
         transcript = client.wait_for_completion(job_id, transcription_format='json-v2')
-        # To see the full output, try setting transcription_format='json-v2'.
         print(transcript)
 
-        # Parse the JSON response
+        # Parse the JSON response transcript into an SRT format to be stored in a file
         timestamps = []
         transcriptions = []
         for item in transcript['results']:
