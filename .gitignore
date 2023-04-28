@@ -1,9 +1,9 @@
-# C extensions
+# mp4 videos/clip extensions & API Keys to mask sensitive information and large files
 *.mp4
-
-
-
-
+*.wav
+*.srt
+APIKey.py
+/__pycache__
 
 
 
