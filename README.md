@@ -21,7 +21,7 @@ Set the API_KEY, PATH_TO_FILE, and LANGUAGE variables at the top of the script t
 Run the script using the following command:
 
 '''
-python generate_subtitles.py
+python generate_subtitles.py (video.mp4)
 '''
 
 The script will submit a transcription job to the Speechmatics API and wait for the results. Once the results are available, it will generate an SRT file containing the subtitles and overlay them onto the video clip using ffmpeg. The output video file will be named output.mp4.

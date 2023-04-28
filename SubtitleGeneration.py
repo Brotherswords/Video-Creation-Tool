@@ -2,7 +2,7 @@
 '''
 This file is used to build the final clip with the subtitles overlayed on top of the video clip.
 '''
-
+import argparse
 import json
 import subprocess
 import speechmatics as Speechmatics
@@ -12,8 +12,13 @@ from speechmatics.batch_client import BatchClient
 from httpx import HTTPStatusError
 
 
-#Video file path for which subtitles are to be generated
-PATH_TO_FILE = "ValClips.mp4"
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Generate subtitles and overlay them on a video file')
+parser.add_argument('file', help='path to the video file')
+args = parser.parse_args()
+
+# Set variables
+PATH_TO_FILE = args.file
 LANGUAGE = "en"
 json_data = None
 
@@ -71,7 +76,7 @@ with BatchClient(settings) as client:
             f.write(srt)
 
         # Overlay the SRT file onto the video
-        subprocess.run(['ffmpeg', '-i', 'ValClipShort.mp4', '-vf', f'subtitles=output.srt', '-c:a', 'copy', 'output.mp4'])
+        subprocess.run(['ffmpeg', '-i', PATH_TO_FILE, '-vf', f'subtitles=output.srt', '-c:a', 'copy', 'output.mp4'])
 
     except HTTPStatusError as e:
         if e.response.status_code == 401:
