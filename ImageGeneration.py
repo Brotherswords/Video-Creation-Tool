@@ -1,12 +1,12 @@
+import re
+import APIKey
+import requests
 import argparse
-from regex import re
-from cv2 import cv2
 import requests
 from PIL import Image
 from pydub import AudioSegment
 from google.cloud import vision
-from google.cloud.vision import types
-
+from io import BytesIO
 
 parser = argparse.ArgumentParser(
     description='Generate subtitles and overlay them on a video file')
@@ -30,9 +30,35 @@ def extract_keywords_from_srt(srt_file_path):
         return key_words_without_common_words
 
 
-def main():
-    print(extract_keywords_from_srt(PATH_TO_FILE))
+def generate_image(keyword):
+    api_key = APIKey.OPENAI_API_KEY
+    url = f'https://api.openai.com/v1/images/generations'
+    prompt = f'Generate an image of a {keyword}'
+    data = {
+        'model': 'image-alpha-001',
+        'prompt': prompt,
+    }
+    headers = {
+        'Authorization': f'Bearer {api_key}'
+    }
+    response = requests.post(url, json=data, headers=headers)
+    response_json = response.json()
+    image_url = response_json['data'][0]['url']
+    image_data = requests.get(image_url).content
+    image = Image.open(BytesIO(image_data))
+    return image
+
+
+def save_image(keyword, filename):
+    # generate the image using the generate_image function
+    image = generate_image(keyword)
+
+    # save the image to a file
+    with open(filename, 'wb') as f:
+        image.save(f)
 
 
 if __name__ == '__main__':
-    print(extract_keywords_from_srt(PATH_TO_FILE))
+    keywords = extract_keywords_from_srt(PATH_TO_FILE)
+    print(keywords)
+    save_image(keywords[0], keywords[0] + '.jpg')
