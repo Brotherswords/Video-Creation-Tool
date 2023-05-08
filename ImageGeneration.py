@@ -93,4 +93,3 @@ def save_image(keyword: str, filename: str) -> None:
 if __name__ == '__main__':
     keywords = extract_keywords_from_srt(PATH_TO_FILE)
     print(keywords)
-    # save_image(keywords[0], 'Generation.jpg')
