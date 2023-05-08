@@ -90,6 +90,43 @@ def save_image(keyword: str, filename: str) -> None:
         image.save(f)
 
 
+def filter_keywords_by_timestamp(keywords_with_timestamps: List[Tuple[str, str]], separation_time: int) -> List[Tuple[str, str]]:
+    """
+    Filters a list of keyword-timestamp tuples such that keywords are spaced at least separation_time seconds apart.
+
+    :param keywords_with_timestamps: A list of keyword-timestamp tuples.
+    :return: A filtered list of keyword-timestamp tuples.
+    """
+    filtered_keywords_with_timestamps = [
+        keywords_with_timestamps[0]]  # Always include the first keyword in the list
+    for i in range(1, len(keywords_with_timestamps)):
+        current_timestamp = keywords_with_timestamps[i][1]
+        previous_timestamp = filtered_keywords_with_timestamps[-1][1]
+        if (convert_timestamp_to_seconds(current_timestamp) - convert_timestamp_to_seconds(previous_timestamp)) >= separation_time:
+            filtered_keywords_with_timestamps.append(
+                keywords_with_timestamps[i])
+    return filtered_keywords_with_timestamps
+
+
+def convert_timestamp_to_seconds(timestamp: str) -> int:
+    """
+    Converts a timestamp string in the format "HH:MM:SS,MMM" to the number of seconds since the start of the video.
+
+    :param timestamp: A string representing a timestamp in the format "HH:MM:SS,MMM".
+    :return: An integer representing the number of seconds since the start of the video.
+    """
+    parts = timestamp.split(':')
+    hours = int(parts[0])
+    minutes = int(parts[1])
+    seconds, milliseconds = parts[2].split(',')
+    seconds = int(seconds)
+    milliseconds = int(milliseconds)
+    return ((hours * 60 + minutes) * 60 + seconds) + (milliseconds // 1000)
+
+
 if __name__ == '__main__':
     keywords = extract_keywords_from_srt(PATH_TO_FILE)
     print(keywords)
+    keywords = filter_keywords_by_timestamp(keywords, 5)
+    print(keywords)
+    # save_image(keywords[0][0], 'test.jpg')
