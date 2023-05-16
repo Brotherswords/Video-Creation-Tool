@@ -1,5 +1,3 @@
-# Video Creation Tool
-
 # README
 
 This script is used to generate subtitles and overlay them onto a video clip using the Speechmatics API and the ffmpeg command-line tool.
