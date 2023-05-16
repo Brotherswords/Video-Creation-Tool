@@ -4,3 +4,4 @@
 *.srt
 subtitle_generation/APIKey.py
 /__pycache__
+.DS_Store
