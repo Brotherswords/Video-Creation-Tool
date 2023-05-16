@@ -1,0 +1,2 @@
+Please automatically convert these formatted transcripts into well-punctated text. 
+The result should be a well-punctuated video transcript.

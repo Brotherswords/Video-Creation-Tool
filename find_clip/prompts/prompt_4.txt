@@ -1,0 +1,6 @@
+Given the well-punctated text and the formatted transcripts, find a interesting clip that is about 45 seconds. 
+Make sure that this clip could be contained without any other context and does not get cut off without the speaker finishing a thought.
+In other words, if someone only heard the speaker during this clip, they would not be confused by where the clip is beginning or feel that it ended without a conclusion.
+Make sure that this clip would create a interesting YouTube short or Tik Tok video.
+Give the beginning and end time stamps of this clip based on the formatted transcript.
+Use the beginning and end time stamps to make sure this clip is about 45 seconds.
