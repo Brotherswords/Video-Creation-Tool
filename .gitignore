@@ -2,15 +2,5 @@
 *.mp4
 *.wav
 *.srt
-APIKey.py
+subtitle_generation/APIKey.py
 /__pycache__
-
-
-
-
-
-
-
-
-
-
