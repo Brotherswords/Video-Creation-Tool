@@ -77,7 +77,7 @@ with BatchClient(settings) as client:
 
         # Overlay the SRT file onto the video
         subprocess.run(['ffmpeg', '-i', PATH_TO_FILE, '-vf',
-                       f'subtitles=output.srt', '-c:a', 'copy', 'output.mp4'])
+                       f'subtitles=output.srt', '-c:a', 'copy', 'outputSubtitles.mp4'])
 
     except HTTPStatusError as e:
         if e.response.status_code == 401:

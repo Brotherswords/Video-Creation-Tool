@@ -3,6 +3,7 @@
 *.wav
 *.srt
 *.jpg
+*.txt
 APIKey.py
 /__pycache__
 

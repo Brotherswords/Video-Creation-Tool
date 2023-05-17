@@ -4,13 +4,15 @@ import requests
 import argparse
 from PIL import Image
 from io import BytesIO
+import subprocess
+
 from typing import List, Tuple
 
 
 # Obtain Path from command line arguments and parse it
 parser = argparse.ArgumentParser(
     description='Generate subtitles and overlay them on a video file')
-parser.add_argument('file', help='path to the video file')
+parser.add_argument('file', help='path to the srt file')
 args = parser.parse_args()
 
 PATH_TO_FILE = args.file
@@ -54,7 +56,7 @@ def generate_image(keyword: str) -> Image:
     Generates an image using the DALLE-2 API using keywords generated from extract_keywords_from_srt
     @param keyword: The keyword to generate an image of
     @return: The generated image
-    NOTE: This function costs about 0.02 USD per call. Use sparingly.
+    NOTE: This function costs approximately 0.02 USD per call. Use sparingly.
     """
 
     api_key = APIKey.OPENAI_API_KEY
@@ -124,9 +126,70 @@ def convert_timestamp_to_seconds(timestamp: str) -> int:
     return ((hours * 60 + minutes) * 60 + seconds) + (milliseconds // 1000)
 
 
+# def Overlay_Images_With_AI(duration: int, input_file: str, output_file: str, keywords: List[Tuple[str, str]]) -> None:
+#     ffmpeg_cmd = ""
+#     ffmpeg_imgStr = ''
+#     ffmpeg_imgStrTemp = ''
+#     with open('image_list.txt', 'w') as f:
+#         f.write('')
+
+# # ffmpeg -i output.mp4 -f concat -safe 0 -i image_list.txt -filter_complex "[1:v]overlay=x=100:y=100:enable='between(t,2,12)'[overlay1];[overlay1][2:v]overlay=x=100:y=100:enable='between(t,12,22)'" -codec:a copy outputOverlay.mp4
+
+#     with open('image_list.txt', 'w') as f:
+#         for keyword, time in keywords:
+#             ffmpeg_imgStrTemp = ffmpeg_imgStr
+#             try:
+#                 keyword_without_spaces = keyword.replace(
+#                     " ", "").replace("\t", "").replace("\n", "")
+#                 start_time = convert_timestamp_to_seconds(time)
+#                 end_time = start_time + duration
+#                 ffmpeg_imgStr += f'[0:v][{keyword_without_spaces}.jpg]overlay=x=100:y=100:enable=\'between(t,{start_time},{end_time})\';'
+#                 f.write(f"file '{keyword_without_spaces}.jpg'\n")
+#                 # save_image(keyword_without_spaces,
+#                 #    keyword_without_spaces+'.jpg')
+#             except Exception as e:
+#                 print(e, "ignoring keyword: ", keyword)
+#                 ffmpeg_imgStr = ffmpeg_imgStrTemp
+
+#     ffmpeg_cmd = f'ffmpeg -i {input_file} -f concat -safe 0 -i image_list.txt -filter_complex "{ffmpeg_imgStr}" -codec:a copy {output_file}'
+#     print(ffmpeg_cmd)
+#     subprocess.run(ffmpeg_cmd, shell=True)
+
+
+def Overlay_Images_With_AI(duration: int, input_file: str, output_file: str, keywords: List[Tuple[str, str]]) -> None:
+    filter_complex = ""
+    ffmpeg_cmd = ['ffmpeg', '-y', '-i', input_file]
+
+    for i, (keyword, time) in enumerate(keywords):
+        keyword_without_spaces = keyword.replace(
+            " ", "").replace("\t", "").replace("\n", "")
+        save_image(keyword_without_spaces, keyword_without_spaces + '.jpg')
+        start_time = convert_timestamp_to_seconds(time)
+        end_time = start_time + duration
+        ffmpeg_cmd.extend(['-i', f'{keyword_without_spaces}.jpg'])
+
+        if i > 0:
+            filter_complex += f"[tmp{i-1}][{i+1}:v] "
+        else:
+            filter_complex += f"[0:v][{i+1}:v] "
+
+        if i == len(keywords) - 1:  # If it is the last keyword, do not add a label to the output
+            filter_complex += f"overlay=x=50:y=50:enable='between(t,{start_time},{end_time})' "
+        else:
+            filter_complex += f"overlay=x=50:y=50:enable='between(t,{start_time},{end_time})' [tmp{i}]; "
+
+    ffmpeg_cmd.extend(['-filter_complex', filter_complex,
+                      '-codec:a', 'copy', output_file])
+
+    print(' '.join(ffmpeg_cmd))
+    subprocess.run(ffmpeg_cmd)
+
+
 if __name__ == '__main__':
+    duration: int = 4
     keywords = extract_keywords_from_srt(PATH_TO_FILE)
     print(keywords)
-    keywords = filter_keywords_by_timestamp(keywords, 5)
+    keywords = filter_keywords_by_timestamp(keywords, duration)
     print(keywords)
-    # save_image(keywords[0][0], 'test.jpg')
+    Overlay_Images_With_AI(duration//2, 'outputSubtitles.mp4',
+                           'outputOverlay.mp4', keywords)
