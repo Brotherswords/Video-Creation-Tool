@@ -2,6 +2,7 @@
 *.mp4
 *.wav
 *.srt
-subtitle_generation/APIKey.py
+*APIKey.py
 /__pycache__
 .DS_Store
+*.jpg
